@@ -51,10 +51,22 @@ export default function PatientRegisterPage() {
       const res = await fetch('/api/patient/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(formData),
+        body: JSON.stringify({
+          ...formData,
+          role: 'patient', // ✅ important for backend logic
+        }),
       });
 
-      const data = await res.json();
+      let data;
+      const contentType = res.headers.get('content-type');
+
+      if (contentType && contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        console.error('Expected JSON, got:', text);
+        throw new Error('Invalid server response. Please try again.');
+      }
 
       if (!res.ok) {
         setError(data.message || 'Registration failed');
@@ -62,13 +74,11 @@ export default function PatientRegisterPage() {
         return;
       }
 
-      localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
-
       router.push('/patient/dashboard');
-    } catch (err) {
+    } catch (err: any) {
       console.error(err);
-      setError('Registration failed. Please try again.');
+      setError(err.message || 'Registration failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -128,7 +138,10 @@ export default function PatientRegisterPage() {
 
                 <div className="space-y-2">
                   <Label htmlFor="gender">Gender</Label>
-                  <Select onValueChange={(value) => handleChange('gender', value)}>
+                  <Select
+                    value={formData.gender}
+                    onValueChange={(value) => handleChange('gender', value)}
+                  >
                     <SelectTrigger>
                       <SelectValue placeholder="Select gender" />
                     </SelectTrigger>
