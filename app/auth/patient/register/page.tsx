@@ -62,16 +62,18 @@ export default function PatientRegisterPage() {
     }
 
     try {
-      const res = await fetch('/api/auth/register', {
+      const res = await fetch('/api/patient/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
-          role: 'patient', // Needed by your API logic
+          age: Number(formData.age),
+          role: 'patient',
         }),
       });
 
       const contentType = res.headers.get('content-type');
+
       if (!res.ok) {
         if (contentType?.includes('application/json')) {
           const data = await res.json();

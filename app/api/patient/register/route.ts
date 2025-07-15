@@ -8,40 +8,45 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { name, email, password, phone, age, gender } = body;
 
-    // Validate all required fields
+    // Validate fields
     if (!name || !email || !password || !phone || !age || !gender) {
       return NextResponse.json(
         { message: 'All fields are required' },
-        { status: 400 }
+        {
+          status: 400,
+          headers: { 'Content-Type': 'application/json' },
+        }
       );
     }
 
     // Connect to DB
     await dbConnect();
 
-    // Check for existing patient
+    // Check if user already exists
     const existingPatient = await Patient.findOne({ email });
     if (existingPatient) {
       return NextResponse.json(
         { message: 'Patient already exists' },
-        { status: 409 }
+        {
+          status: 409,
+          headers: { 'Content-Type': 'application/json' },
+        }
       );
     }
 
-    // Hash password
+    // Hash the password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // Create new patient
+    // Create and save new patient
     const newPatient = await Patient.create({
       name,
       email,
       password: hashedPassword,
       phone,
-      age,
+      age: Number(age), // Ensure it's a number
       gender,
     });
 
-    // Respond with success
     return NextResponse.json(
       {
         message: 'Patient registered successfully',
@@ -52,13 +57,23 @@ export async function POST(req: Request) {
           role: 'patient',
         },
       },
-      { status: 201 }
+      {
+        status: 201,
+        headers: { 'Content-Type': 'application/json' },
+      }
     );
-  } catch (error) {
-    console.error('[PATIENT_REGISTER_ERROR]', error);
+  } catch (error: any) {
+    console.error('[PATIENT_REGISTER_ERROR]', error?.message || error);
+
     return NextResponse.json(
-      { message: 'Server error. Please try again later.' },
-      { status: 500 }
+      {
+        message: 'Server error. Please try again later.',
+        error: error?.message || 'Unknown error',
+      },
+      {
+        status: 500,
+        headers: { 'Content-Type': 'application/json' },
+      }
     );
   }
 }
