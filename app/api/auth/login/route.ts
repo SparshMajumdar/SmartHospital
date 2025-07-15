@@ -1,4 +1,5 @@
 // app/api/auth/login/route.ts
+
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
 import dbConnect from '@/lib/db';
@@ -7,7 +8,8 @@ import Patient from '@/models/Patient';
 
 export async function POST(req: Request) {
   try {
-    const { email, password, role } = await req.json();
+    const body = await req.json();
+    const { email, password, role } = body;
 
     if (!email || !password || !role) {
       return NextResponse.json({ message: 'Missing fields' }, { status: 400 });
@@ -35,14 +37,13 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 });
     }
 
-    // You can generate a JWT here if needed
     return NextResponse.json({
       message: 'Login successful',
       user: {
         id: user._id,
         name: user.name,
         email: user.email,
-        role
+        role: role
       }
     });
   } catch (error) {

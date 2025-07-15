@@ -8,19 +8,30 @@ export async function POST(req: Request) {
     const body = await req.json();
     const { name, email, password, phone, age, gender } = body;
 
+    // Validate all required fields
     if (!name || !email || !password || !phone || !age || !gender) {
-      return NextResponse.json({ message: 'All fields are required' }, { status: 400 });
+      return NextResponse.json(
+        { message: 'All fields are required' },
+        { status: 400 }
+      );
     }
 
+    // Connect to DB
     await dbConnect();
 
+    // Check for existing patient
     const existingPatient = await Patient.findOne({ email });
     if (existingPatient) {
-      return NextResponse.json({ message: 'Patient already exists' }, { status: 409 });
+      return NextResponse.json(
+        { message: 'Patient already exists' },
+        { status: 409 }
+      );
     }
 
+    // Hash password
     const hashedPassword = await bcrypt.hash(password, 10);
 
+    // Create new patient
     const newPatient = await Patient.create({
       name,
       email,
@@ -30,16 +41,24 @@ export async function POST(req: Request) {
       gender,
     });
 
-    return NextResponse.json({
-      message: 'Patient registered successfully',
-      patient: {
-        id: newPatient._id,
-        name: newPatient.name,
-        email: newPatient.email,
+    // Respond with success
+    return NextResponse.json(
+      {
+        message: 'Patient registered successfully',
+        user: {
+          id: newPatient._id,
+          name: newPatient.name,
+          email: newPatient.email,
+          role: 'patient',
+        },
       },
-    });
+      { status: 201 }
+    );
   } catch (error) {
     console.error('[PATIENT_REGISTER_ERROR]', error);
-    return NextResponse.json({ message: 'Server error' }, { status: 500 });
+    return NextResponse.json(
+      { message: 'Server error. Please try again later.' },
+      { status: 500 }
+    );
   }
 }

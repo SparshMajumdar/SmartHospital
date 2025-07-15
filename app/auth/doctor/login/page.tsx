@@ -19,8 +19,8 @@ export default function DoctorLoginPage() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setLoading(true);
     setError('');
+    setLoading(true);
 
     try {
       const res = await fetch('/api/auth/login', {
@@ -29,22 +29,28 @@ export default function DoctorLoginPage() {
         body: JSON.stringify({ email, password, role: 'doctor' }),
       });
 
-      const data = await res.json();
+      const contentType = res.headers.get('content-type');
+      let data;
+
+      if (contentType && contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        console.error('Expected JSON, got:', text);
+        throw new Error('Invalid server response');
+      }
 
       if (!res.ok) {
         setError(data.message || 'Login failed');
-        setLoading(false);
         return;
       }
 
-      // Save token and user info in localStorage
-      localStorage.setItem('token', data.token);
+      localStorage.setItem('token', data.token ?? '');
       localStorage.setItem('user', JSON.stringify(data.user));
-
       router.push('/doctor/dashboard');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Login error:', err);
-      setError('Login failed. Please try again.');
+      setError(err.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -68,6 +74,7 @@ export default function DoctorLoginPage() {
             <CardTitle className="text-2xl font-bold">Doctor Login</CardTitle>
             <p className="text-gray-600">Access your doctor dashboard</p>
           </CardHeader>
+
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (

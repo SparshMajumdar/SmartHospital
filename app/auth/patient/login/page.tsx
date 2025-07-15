@@ -3,7 +3,12 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -26,23 +31,30 @@ export default function PatientLoginPage() {
       const res = await fetch('/api/auth/login', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ email, password, role: 'patient' }),
+        body: JSON.stringify({ email, password, role: 'patient' })
       });
 
-      const data = await res.json();
+      const contentType = res.headers.get('content-type');
+      let data: any;
+
+      if (contentType && contentType.includes('application/json')) {
+        data = await res.json();
+      } else {
+        const text = await res.text();
+        console.error('Non-JSON response:', text);
+        throw new Error('Unexpected server response. Please try again.');
+      }
 
       if (!res.ok) {
         setError(data.message || 'Login failed');
         return;
       }
 
-      localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
-
       router.push('/patient/dashboard');
-    } catch (err) {
+    } catch (err: any) {
       console.error('Login error:', err);
-      setError('Login failed. Please try again.');
+      setError(err.message || 'Login failed. Please try again.');
     } finally {
       setLoading(false);
     }
@@ -66,6 +78,7 @@ export default function PatientLoginPage() {
             <CardTitle className="text-2xl font-bold">Patient Login</CardTitle>
             <p className="text-gray-600">Access your patient dashboard</p>
           </CardHeader>
+
           <CardContent>
             <form onSubmit={handleSubmit} className="space-y-4">
               {error && (
@@ -110,7 +123,10 @@ export default function PatientLoginPage() {
             <div className="mt-4 text-center">
               <p className="text-sm text-gray-600">
                 Don't have an account?{' '}
-                <Link href="/auth/patient/register" className="text-green-600 hover:text-green-700 font-medium">
+                <Link
+                  href="/auth/patient/register"
+                  className="text-green-600 hover:text-green-700 font-medium"
+                >
                   Register here
                 </Link>
               </p>

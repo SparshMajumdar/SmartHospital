@@ -3,12 +3,26 @@
 import React, { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import {
+  Card,
+  CardContent,
+  CardHeader,
+  CardTitle,
+} from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Alert, AlertDescription } from '@/components/ui/alert';
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from '@/components/ui/select';
+import {
+  Alert,
+  AlertDescription,
+} from '@/components/ui/alert';
 import { Users, ArrowLeft } from 'lucide-react';
 
 export default function PatientRegisterPage() {
@@ -27,7 +41,7 @@ export default function PatientRegisterPage() {
   const router = useRouter();
 
   const handleChange = (field: string, value: string) => {
-    setFormData(prev => ({ ...prev, [field]: value }));
+    setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -48,32 +62,29 @@ export default function PatientRegisterPage() {
     }
 
     try {
-      const res = await fetch('/api/patient/register', {
+      const res = await fetch('/api/auth/register', {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({
           ...formData,
-          role: 'patient', // ✅ important for backend logic
+          role: 'patient', // Needed by your API logic
         }),
       });
 
-      let data;
       const contentType = res.headers.get('content-type');
-
-      if (contentType && contentType.includes('application/json')) {
-        data = await res.json();
-      } else {
-        const text = await res.text();
-        console.error('Expected JSON, got:', text);
-        throw new Error('Invalid server response. Please try again.');
-      }
-
       if (!res.ok) {
-        setError(data.message || 'Registration failed');
-        setLoading(false);
+        if (contentType?.includes('application/json')) {
+          const data = await res.json();
+          setError(data.message || 'Registration failed');
+        } else {
+          const text = await res.text();
+          console.error('Non-JSON error response:', text);
+          setError('Unexpected server error. Please try again.');
+        }
         return;
       }
 
+      const data = await res.json();
       localStorage.setItem('user', JSON.stringify(data.user));
       router.push('/patient/dashboard');
     } catch (err: any) {
@@ -214,7 +225,10 @@ export default function PatientRegisterPage() {
             <div className="mt-4 text-center">
               <p className="text-sm text-gray-600">
                 Already have an account?{' '}
-                <Link href="/auth/patient/login" className="text-green-600 hover:text-green-700 font-medium">
+                <Link
+                  href="/auth/patient/login"
+                  className="text-green-600 hover:text-green-700 font-medium"
+                >
                   Login here
                 </Link>
               </p>

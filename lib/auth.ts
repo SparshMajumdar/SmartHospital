@@ -7,8 +7,12 @@ export interface AuthUser {
   role: 'patient' | 'doctor';
 }
 
-export class AuthManager {
+class AuthManager {
   private static instance: AuthManager;
+
+  private constructor() {
+    // private to enforce singleton
+  }
 
   static getInstance(): AuthManager {
     if (!AuthManager.instance) {
@@ -19,28 +23,46 @@ export class AuthManager {
 
   setSession(token: string, user: AuthUser): void {
     if (typeof window === 'undefined') return;
-    localStorage.setItem('token', token);
-    localStorage.setItem('user', JSON.stringify(user));
+    try {
+      localStorage.setItem('token', token);
+      localStorage.setItem('user', JSON.stringify(user));
+    } catch (error) {
+      console.error('Error setting session:', error);
+    }
   }
 
   getToken(): string | null {
     if (typeof window === 'undefined') return null;
-    return localStorage.getItem('token');
+    try {
+      return localStorage.getItem('token');
+    } catch {
+      return null;
+    }
   }
 
   getCurrentUser(): AuthUser | null {
     if (typeof window === 'undefined') return null;
-    const user = localStorage.getItem('user');
-    return user ? JSON.parse(user) : null;
+    try {
+      const user = localStorage.getItem('user');
+      return user ? JSON.parse(user) as AuthUser : null;
+    } catch {
+      return null;
+    }
   }
 
   isAuthenticated(): boolean {
-    return this.getToken() !== null && this.getCurrentUser() !== null;
+    return !!this.getToken() && !!this.getCurrentUser();
   }
 
   logout(): void {
     if (typeof window === 'undefined') return;
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+    try {
+      localStorage.removeItem('token');
+      localStorage.removeItem('user');
+    } catch (error) {
+      console.error('Error during logout:', error);
+    }
   }
 }
+
+export default AuthManager;
