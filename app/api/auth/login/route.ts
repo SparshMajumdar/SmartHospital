@@ -43,7 +43,8 @@ export async function POST(req: Request) {
         id: user._id,
         name: user.name,
         email: user.email,
-        role: role
+        role: role,
+        // Explicitly exclude password
       }
     });
   } catch (error) {

@@ -55,6 +55,7 @@ export async function POST(req: Request) {
           name: newPatient.name,
           email: newPatient.email,
           role: 'patient',
+          // Explicitly exclude password
         },
       },
       {
