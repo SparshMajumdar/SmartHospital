@@ -5,6 +5,7 @@ export interface IDoctor extends Document {
   name: string;
   email: string;
   password: string;
+  doctorId: string;
   specialization?: string;
 }
 
@@ -26,6 +27,12 @@ const doctorSchema = new Schema<IDoctor>(
     password: {
       type: String,
       required: true,
+    },
+    doctorId: {
+      type: String,
+      required: true,
+      unique: true,
+      trim: true,
     },
     specialization: {
       type: String,

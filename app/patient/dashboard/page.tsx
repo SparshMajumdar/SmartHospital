@@ -15,7 +15,7 @@ import { Badge } from '@/components/ui/badge';
 export default function PatientDashboard() {
   const router = useRouter();
   const [user, setUser] = useState<any>(null);
-  const [appointments, setAppointments] = useState([]);
+  const [appointments, setAppointments] = useState<any[]>([]);
   const [showForm, setShowForm] = useState(false);
   const [message, setMessage] = useState('');
   const [loading, setLoading] = useState(false);
@@ -62,10 +62,18 @@ export default function PatientDashboard() {
       const res = await fetch(`/api/appointments/patient/${patientId}`, {
         headers: { Authorization: `Bearer ${token}` },
       });
+
+      if (!res.ok) {
+        console.error('Failed to fetch appointments:', await res.text());
+        setAppointments([]);
+        return;
+      }
+
       const data = await res.json();
-      setAppointments(data);
+      setAppointments(Array.isArray(data) ? data : []);
     } catch (err) {
       console.error('Failed to load appointments', err);
+      setAppointments([]);
     }
   };
 

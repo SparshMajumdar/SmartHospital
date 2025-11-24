@@ -30,7 +30,7 @@ export default function HomePage() {
             Welcome to Our Hospital Management System
           </h2>
           <p className="text-xl text-gray-600 mb-8 max-w-3xl mx-auto">
-            Streamlined healthcare management with RFID-based attendance tracking and 
+            Streamlined healthcare management with RFID-based attendance tracking and
             intelligent appointment scheduling for better patient care.
           </p>
         </div>
@@ -83,11 +83,19 @@ export default function HomePage() {
                   Access your dashboard to view appointments and manage patient care.
                   RFID attendance tracking ensures accurate scheduling.
                 </p>
-                <Link href="/auth/doctor/login">
-                  <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg">
-                    Doctor Login
-                  </Button>
-                </Link>
+                <div className="space-y-3">
+                  <Link href="/auth/doctor/login">
+                    <Button className="w-full bg-blue-600 hover:bg-blue-700 text-white py-3 text-lg">
+                      Doctor Login
+                    </Button>
+                  </Link>
+                  <div className="h-2"></div>
+                  <Link href="/auth/doctor/register">
+                    <Button variant="outline" className="w-full border-blue-600 text-blue-600 hover:bg-blue-50 py-3 text-lg">
+                      New Doctor Registration
+                    </Button>
+                  </Link>
+                </div>
               </CardContent>
             </Card>
 
@@ -99,7 +107,7 @@ export default function HomePage() {
                 </div>
                 <h4 className="text-2xl font-bold mb-4 text-gray-900">Patient</h4>
                 <p className="text-gray-600 mb-6">
-                  Book appointments, view your medical records, and manage your healthcare 
+                  Book appointments, view your medical records, and manage your healthcare
                   with our intelligent scheduling system.
                 </p>
                 <div className="space-y-3">

@@ -45,8 +45,13 @@ export default function DoctorLoginPage() {
         return;
       }
 
-      localStorage.setItem('token', data.token ?? '');
+      // Store authentication data
+      if (data.token) {
+        localStorage.setItem('token', data.token);
+      }
       localStorage.setItem('user', JSON.stringify(data.user));
+
+      // Redirect to dashboard
       router.push('/doctor/dashboard');
     } catch (err: any) {
       console.error('Login error:', err);
