@@ -64,7 +64,7 @@ export async function POST(req: Request) {
       }
     );
   } catch (error: any) {
-    console.error('[PATIENT_REGISTER_ERROR]', error?.message || error);
+    console.error('[PATIENT_REGISTER_ERROR] Full error details:', error);
 
     return NextResponse.json(
       {
