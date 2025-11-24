@@ -1,5 +1,6 @@
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import dbConnect from '@/lib/db';
 import Patient from '@/models/Patient';
 
@@ -47,9 +48,16 @@ export async function POST(req: Request) {
       gender,
     });
 
+    const token = jwt.sign(
+      { id: newPatient._id, role: 'patient' },
+      process.env.JWT_SECRET || 'fallback_secret_key_change_in_production',
+      { expiresIn: '1d' }
+    );
+
     return NextResponse.json(
       {
         message: 'Patient registered successfully',
+        token,
         user: {
           id: newPatient._id,
           name: newPatient.name,

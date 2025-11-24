@@ -2,6 +2,7 @@
 
 import { NextResponse } from 'next/server';
 import bcrypt from 'bcryptjs';
+import jwt from 'jsonwebtoken';
 import dbConnect from '@/lib/db';
 import Doctor from '@/models/Doctor';
 import Patient from '@/models/Patient';
@@ -37,8 +38,15 @@ export async function POST(req: Request) {
       return NextResponse.json({ message: 'Invalid credentials' }, { status: 401 });
     }
 
+    const token = jwt.sign(
+      { id: user._id, role: role },
+      process.env.JWT_SECRET || 'fallback_secret_key_change_in_production',
+      { expiresIn: '1d' }
+    );
+
     return NextResponse.json({
       message: 'Login successful',
+      token,
       user: {
         id: user._id,
         name: user.name,

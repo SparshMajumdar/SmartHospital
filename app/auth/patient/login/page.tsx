@@ -50,6 +50,7 @@ export default function PatientLoginPage() {
         return;
       }
 
+      localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       router.push('/patient/dashboard');
     } catch (err: any) {

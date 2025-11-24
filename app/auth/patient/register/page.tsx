@@ -87,6 +87,7 @@ export default function PatientRegisterPage() {
       }
 
       const data = await res.json();
+      localStorage.setItem('token', data.token);
       localStorage.setItem('user', JSON.stringify(data.user));
       router.push('/patient/dashboard');
     } catch (err: any) {
